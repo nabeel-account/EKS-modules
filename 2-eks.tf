@@ -35,7 +35,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t2.medium"]
+      instance_types = ["t2.large"]
       capacity_type  = "ON_DEMAND"
 
       min_size     = 1
@@ -62,31 +62,31 @@ module "eks" {
       }
     }
 
-    spot = {
-      instance_types = ["t2.medium"]
-      capacity_type  = "SPOT"
+    # spot = {
+    #   instance_types = ["t2.medium"]
+    #   capacity_type  = "SPOT"
 
-      min_size     = 1
-      max_size     = 2
-      desired_size = 1
+    #   min_size     = 1
+    #   max_size     = 2
+    #   desired_size = 1
 
-      iam_role_additional_policies = {
-        AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-      }
+    #   iam_role_additional_policies = {
+    #     AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+    #   }
 
-      block_device_mappings = {
-        xvda = {
-          device_name = "/dev/xvda"
-          ebs = {
-            volume_size           = 20
-            volume_type           = "gp3"
-            iops                  = 3000
-            throughput            = 150
-            encrypted             = true
-            delete_on_termination = true
-          }
-        }
-      }
-    }
+    #   block_device_mappings = {
+    #     xvda = {
+    #       device_name = "/dev/xvda"
+    #       ebs = {
+    #         volume_size           = 20
+    #         volume_type           = "gp3"
+    #         iops                  = 3000
+    #         throughput            = 150
+    #         encrypted             = true
+    #         delete_on_termination = true
+    #       }
+    #     }
+    #   }
+    # }
   }
 }
