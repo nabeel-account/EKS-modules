@@ -14,7 +14,7 @@ data "helm_template" "grafana" {
 
   set {
     name  = "adminPassword"
-    value = "devops123"
+    value = "password123"
   }
 
   set {
