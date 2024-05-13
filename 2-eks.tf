@@ -4,7 +4,7 @@ module "eks" {
   version = "19.15.3"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.27"
+  cluster_version = var.kubernetes_version
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
@@ -14,7 +14,7 @@ module "eks" {
 
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
-    instance_types = ["t2.micro", "t2.small", "t2.medium"]
+    instance_types = ["t3.micro", "t3.small", "t3.medium"]
   }
 
   # Kubernetes Addon
@@ -35,7 +35,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t2.medium"]
+      instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
 
       min_size     = 1
@@ -51,7 +51,7 @@ module "eks" {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
-            volume_size           = 20
+            volume_size           = 30
             volume_type           = "gp3"
             iops                  = 3000
             throughput            = 150
@@ -60,10 +60,14 @@ module "eks" {
           }
         }
       }
+
+      label = {
+        role = "default"
+      }
     }
 
     spot = {
-      instance_types = ["t2.medium"]
+      instance_types = ["t3.medium"]
       capacity_type  = "SPOT"
 
       min_size     = 1
@@ -78,7 +82,7 @@ module "eks" {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
-            volume_size           = 20
+            volume_size           = 30
             volume_type           = "gp3"
             iops                  = 3000
             throughput            = 150
@@ -88,5 +92,32 @@ module "eks" {
         }
       }
     }
+
+    label = {
+        role = "spot"
+      }
   }
+
+  # To add the eks-admin IAM role to the EKS cluster, we need to update the aws-auth configmap.
+  manage_aws_auth_configmap = true
+  aws_auth_roles = [
+    {
+      rolearn  = module.eks_admins_iam_role.iam_role_arn
+      username = module.eks_admins_iam_role.iam_role_name
+      groups   = ["system:masters"]
+    },
+  ]
+
+  # # allow access from the EKS control plane to the webhook port of the AWS load balancer controller.
+  # node_security_group_additional_rules = {
+  #   ingress_allow_access_from_control_plane = {
+  #     type                          = "ingress"
+  #     protocol                      = "tcp"
+  #     from_port                     = 9443
+  #     to_port                       = 9443
+  #     source_cluster_security_group = true
+  #     description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+  #   }
+  # }
+
 }
