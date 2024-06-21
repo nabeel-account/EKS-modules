@@ -4,7 +4,7 @@ module "eks" {
   version = "19.15.3"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.27"
+  cluster_version = "1.29"
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
@@ -14,7 +14,7 @@ module "eks" {
 
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
-    instance_types = ["t2.micro", "t2.small", "t2.medium"]
+    instance_types = ["t3.micro", "t3.small", "t3.medium"]
   }
 
   # Kubernetes Addon
@@ -35,7 +35,7 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t2.medium"]
+      instance_types = ["t3.medium"]
       capacity_type  = "ON_DEMAND"
 
       min_size     = 1
@@ -51,7 +51,7 @@ module "eks" {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
-            volume_size           = 20
+            volume_size           = 30
             volume_type           = "gp3"
             iops                  = 3000
             throughput            = 150
@@ -63,7 +63,7 @@ module "eks" {
     }
 
     spot = {
-      instance_types = ["t2.medium"]
+      instance_types = ["t3.medium"]
       capacity_type  = "SPOT"
 
       min_size     = 1
@@ -78,7 +78,7 @@ module "eks" {
         xvda = {
           device_name = "/dev/xvda"
           ebs = {
-            volume_size           = 20
+            volume_size           = 30
             volume_type           = "gp3"
             iops                  = 3000
             throughput            = 150

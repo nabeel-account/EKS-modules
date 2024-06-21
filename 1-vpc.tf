@@ -1,9 +1,10 @@
+# https://registry.terraform.io/providers/-/aws/5.48.0/docs/data-sources/availability_zones
 data "aws_availability_zones" "available" {
 }
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.7.0"
+  version = "5.8.0"
 
   name = "main-vpc"
 
@@ -19,13 +20,14 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
 
+  # https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html
   public_subnet_tags = {
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
     "kubernetes.io/role/elb"                      = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
     "kubernetes.io/role/internal-elb"             = 1
   }
 }
