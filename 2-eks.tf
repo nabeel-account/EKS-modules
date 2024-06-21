@@ -4,7 +4,7 @@ module "eks" {
   version = "19.15.3"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.29"
+  cluster_version = var.kubernetes_version
 
   vpc_id                         = module.vpc.vpc_id
   subnet_ids                     = module.vpc.private_subnets
@@ -60,6 +60,10 @@ module "eks" {
           }
         }
       }
+
+      label = {
+        role = "default"
+      }
     }
 
     spot = {
@@ -88,5 +92,32 @@ module "eks" {
         }
       }
     }
+
+    label = {
+        role = "spot"
+      }
   }
+
+  # To add the eks-admin IAM role to the EKS cluster, we need to update the aws-auth configmap.
+  manage_aws_auth_configmap = true
+  aws_auth_roles = [
+    {
+      rolearn  = module.eks_admins_iam_role.iam_role_arn
+      username = module.eks_admins_iam_role.iam_role_name
+      groups   = ["system:masters"]
+    },
+  ]
+
+  # # allow access from the EKS control plane to the webhook port of the AWS load balancer controller.
+  # node_security_group_additional_rules = {
+  #   ingress_allow_access_from_control_plane = {
+  #     type                          = "ingress"
+  #     protocol                      = "tcp"
+  #     from_port                     = 9443
+  #     to_port                       = 9443
+  #     source_cluster_security_group = true
+  #     description                   = "Allow access from control plane to webhook port of AWS load balancer controller"
+  #   }
+  # }
+
 }
